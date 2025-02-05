@@ -1,17 +1,21 @@
-package Task;
+package task;
 
 public class Task {
-    private String name;
-    private String description;
-    private int uid;
+    protected String name;
+    protected String description;
+    protected int uid = 0;
     protected Status status = Status.NEW;
-
-    public Task() {
-    }
 
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public Task(Task task) {
+        this.name = task.name;
+        this.description = task.description;
+        this.uid = task.uid;
+        this.status = task.status;
     }
 
     public String getName() {
@@ -35,7 +39,9 @@ public class Task {
     }
 
     public void setUid(int uid) {
-        this.uid = uid;
+        if (this.uid == 0) {
+            this.uid = uid;
+        }
     }
 
     public Status getStatus() {

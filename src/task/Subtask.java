@@ -1,4 +1,4 @@
-package Task;
+package task;
 
 public class Subtask extends Task {
     private final int epicUid;
@@ -10,16 +10,21 @@ public class Subtask extends Task {
     public Subtask(String name, String description, Epic epic) {
         super(name, description);
         this.epicUid = epic.getUid();
-        epic.getSubtasks().add(this);
+    }
+
+    public Subtask(Subtask subtask) {
+        super(subtask);
+        this.epicUid = subtask.getEpicUid();
+        this.status = subtask.status;
     }
 
     @Override
     public String toString() {
         return "Subtask{" +
-                "name='" + getName() + '\'' +
-                ", description='" + getDescription() + '\'' +
-                ", uid=" + getUid() +
-                ", status=" + getStatus() +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", uid=" + uid +
+                ", status=" + status +
                 ", epicUid=" + epicUid +
                 '}';
     }

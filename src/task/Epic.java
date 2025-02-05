@@ -1,4 +1,4 @@
-package Task;
+package task;
 
 import java.util.ArrayList;
 
@@ -9,6 +9,11 @@ public class Epic extends Task {
         super(name, description);
     }
 
+    public Epic(Epic epic) {
+        super(epic);
+        this.getSubtasks().addAll(epic.subtasks);
+    }
+
     public ArrayList<Subtask> getSubtasks() {
         return subtasks;
     }
@@ -17,14 +22,9 @@ public class Epic extends Task {
     public void setStatus(Status status) {
     }
 
-    public void deleteSubtaskFromEpic(Subtask subtask) {
-        subtasks.remove(subtask);
-        changeStatusDependingOnSubtasks();
-    }
-
     public void changeStatusDependingOnSubtasks() {
         if (subtasks.isEmpty()) {
-            super.setStatus(Status.NEW);
+            status = Status.NEW;
             return;
         }
 
@@ -44,23 +44,23 @@ public class Epic extends Task {
             }
         }
         if (hasProgress) {
-            super.setStatus(Status.IN_PROGRESS);
+            status = Status.IN_PROGRESS;
         } else if (hasDone && !hasNew) {
-            super.setStatus(Status.DONE);
+            status = Status.DONE;
         } else if (!hasDone && hasNew) {
-            super.setStatus(Status.NEW);
+            status = Status.NEW;
         } else {
-            super.setStatus(Status.IN_PROGRESS);
+            status = Status.IN_PROGRESS;
         }
     }
 
     @Override
     public String toString() {
         return "Epic{" +
-                "name='" + getName() + '\'' +
-                ", description='" + getDescription() + '\'' +
-                ", uid=" + getUid() +
-                ", status=" + getStatus() +
+                "name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", uid=" + uid +
+                ", status=" + status +
                 ", subtasks=" + subtasks +
                 '}';
     }

@@ -31,7 +31,7 @@ public class Epic extends Task {
         boolean hasDone = false;
         boolean hasNew = false;
         boolean hasProgress = false;
-        for (Subtask subtask : getSubtasks()) {
+        for (Subtask subtask : subtasks) {
             Status subtaskStatus = subtask.getStatus();
             if (subtaskStatus == Status.IN_PROGRESS) {
                 hasProgress = true;

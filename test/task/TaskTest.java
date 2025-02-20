@@ -7,9 +7,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class TaskTest {
-    public static TaskManager taskManager;
-    public static int task1Id;
-    public static Task task;
+    public TaskManager taskManager;
+    public int task1Id;
+    public Task task;
 
     @BeforeEach
     public void BeforeEach() {

@@ -7,13 +7,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class SubtaskTest {
-    public static TaskManager taskManager;
-    public static Epic epic;
-    public static int epic1Id;
-    public static Subtask subtask1;
-    public static Subtask subtask2;
-    public static int subtask1Id;
-    public static int subtask2Id;
+    public TaskManager taskManager;
+    public Epic epic;
+    public int epic1Id;
+    public Subtask subtask1;
+    public Subtask subtask2;
+    public int subtask1Id;
+    public int subtask2Id;
     @BeforeEach
     public void BeforeEach() {
         taskManager = Managers.getDefault();

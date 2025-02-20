@@ -12,20 +12,20 @@ import java.util.List;
 
 class InMemoryHistoryManagerTest {
 
-    public static HistoryManager historyManager;
-    public static TaskManager taskManager;
-    public static int task1Id;
-    public static Task task1;
-    public static int task2Id;
-    public static Task task2;
-    public static int task3Id;
-    public static Task task3;
-    public static Epic epic1;
-    public static int epic1Id;
-    public static Subtask subtask1;
-    public static Subtask subtask2;
-    public static int subtask1Id;
-    public static int subtask2Id;
+    public HistoryManager historyManager;
+    public TaskManager taskManager;
+    public int task1Id;
+    public Task task1;
+    public int task2Id;
+    public Task task2;
+    public int task3Id;
+    public Task task3;
+    public Epic epic1;
+    public int epic1Id;
+    public Subtask subtask1;
+    public Subtask subtask2;
+    public int subtask1Id;
+    public int subtask2Id;
 
     @BeforeEach
     public void BeforeEach() {

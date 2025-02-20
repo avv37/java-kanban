@@ -8,11 +8,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public interface TaskManager {
-    ArrayList<Task> getTasks();
+    List<Task> getTasks();
 
-    ArrayList<Epic> getEpics();
+    List<Epic> getEpics();
 
-    ArrayList<Subtask> getSubtasks();
+    List<Subtask> getSubtasks();
 
     Task getTaskById(int uid);
 
@@ -20,7 +20,7 @@ public interface TaskManager {
 
     Subtask getSubtaskById(int uid);
 
-    ArrayList<Subtask> getSubtasksByEpicId(int epicId);
+    List<Subtask> getSubtasksByEpicId(int epicId);
 
     int createTask(Task task);
 
@@ -46,6 +46,6 @@ public interface TaskManager {
 
     void deleteAllSubtasks();
 
-    public List<Task> getHistory();
+    List<Task> getHistory();
 
 }

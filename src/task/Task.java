@@ -1,5 +1,7 @@
 package task;
 
+import java.util.Objects;
+
 public class Task {
     protected String name;
     protected String description;
@@ -57,7 +59,10 @@ public class Task {
         if (this == o) return true;
         if (getClass() != o.getClass()) return false;
         Task task = (Task) o;
-        return uid == task.uid;
+        if (uid != task.uid) return false;
+        if (!Objects.equals(name, task.name)) return false;
+        if (!Objects.equals(description, task.description)) return false;
+        return status == task.status;
     }
 
     @Override

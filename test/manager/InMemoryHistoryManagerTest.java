@@ -51,7 +51,7 @@ class InMemoryHistoryManagerTest {
     }
 
     @Test
-    public void isHistoryManagerStoresDifferentVersions() {
+    public void isHistoryManagerStoresLastVersions() {
         Task task;
         task = taskManager.getTaskById(task1Id);
         task = taskManager.getTaskById(task2Id);
@@ -61,42 +61,37 @@ class InMemoryHistoryManagerTest {
         task1.setStatus(Status.IN_PROGRESS);
         task = taskManager.getTaskById(task1Id);
         List<Task> taskHistory = taskManager.getHistory();
-        Task t1 = taskHistory.get(1);
-        Task t2 = taskHistory.get(4);
-        Assertions.assertEquals(t1.getUid(), t2.getUid());
-        Assertions.assertNotEquals(t1, t2);
+
+        Assertions.assertEquals(task1Id, taskHistory.get(3).getUid());
+        Assertions.assertEquals("First task description with change", taskHistory.get(3).getDescription());
+        Assertions.assertNotEquals(task1Id, taskHistory.get(1).getUid());
     }
 
     @Test
-    public void isHistoryManagerStoresLast10Browsings() {
+    public void isHistoryManagerStoresOnlyOneTaskView() {
         Task task;
-        task = taskManager.getTaskById(task1Id);
+        task = taskManager.getTaskById(task1Id); // первый просмотр
         task = taskManager.getTaskById(task2Id);
         task = taskManager.getTaskById(task3Id);
         Subtask subtask;
-        subtask = taskManager.getSubtaskById(subtask1Id);
+        subtask = taskManager.getSubtaskById(subtask1Id); //должна остаться на первом месте
+        task = taskManager.getTaskById(task1Id); // второй просмотр
         subtask = taskManager.getSubtaskById(subtask2Id);
         Epic epic = taskManager.getEpicById(epic1Id);
-        task = taskManager.getTaskById(task1Id);
+        task = taskManager.getTaskById(task1Id); // третий просмотр
         task = taskManager.getTaskById(task2Id);
         task = taskManager.getTaskById(task3Id);
+        List<Task> taskHistory = taskManager.getHistory();
+        int count = 0;
+        for (Task t : taskHistory) {
+            if (t.getUid() == task1Id) {
+                count++;
+            }
+        }
 
-        Assertions.assertEquals(10, taskManager.getHistory().size());
-        Task t1 = taskManager.getHistory().getFirst();
-        Assertions.assertEquals(epic1.getUid(), t1.getUid());
-        Assertions.assertEquals(epic1.getStatus(), t1.getStatus());
-        Assertions.assertEquals(epic1.getName(), t1.getName());
-        Assertions.assertEquals(epic1.getDescription(), t1.getDescription());
-
-        task = taskManager.getTaskById(task1Id);
-        Assertions.assertEquals(10, taskManager.getHistory().size());
-        t1 = taskManager.getHistory().getFirst();
-        Assertions.assertEquals(task1, t1);
-
-        task = taskManager.getTaskById(task2Id);
-        Assertions.assertEquals(10, taskManager.getHistory().size());
-        t1 = taskManager.getHistory().getFirst();
-        Assertions.assertEquals(task2, t1);
+        Assertions.assertEquals(1, count);
+        Assertions.assertEquals(6, taskManager.getHistory().size());
+        Assertions.assertEquals(subtask1Id, taskHistory.getFirst().getUid());
     }
 
 }

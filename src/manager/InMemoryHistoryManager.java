@@ -1,29 +1,79 @@
 package manager;
 
+import task.Node;
 import task.Task;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InMemoryHistoryManager implements HistoryManager {
 
-    private static final int HISTORY_LENGTH = 10;
-    private final ArrayList<Task> browsingHistory = new ArrayList<>();
+    private Node head;
+    private Node tail;
+
+    private final Map<Integer, Node> BrowsingHistory = new HashMap<>();
+
+    private Node linkLast(Task task) {
+        final Node oldTail = tail;
+        Node newNode = new Node(oldTail, task, null);
+        tail = newNode;
+        if (oldTail == null) {
+            head = newNode;
+        } else {
+            oldTail.setNext(newNode);
+        }
+        return newNode;
+    }
+
+    public List<Task> getTasks() {
+        List<Task> tasks = new ArrayList<>();
+        Node node = head;
+        while (node != null) {
+            tasks.add(node.getData());
+            node = node.getNext();
+        }
+        return tasks;
+    }
+
+    private void removeNode(Node node) {
+        if (node == null) return;
+        Node prevNode = node.getPrev();
+        Node nextNode = node.getNext();
+        if (node == tail) {
+            tail = prevNode;
+        }
+        if (node == head) {
+            head = nextNode;
+        }
+        if (prevNode != null) {
+            prevNode.setNext(nextNode);
+        }
+        if (nextNode != null) {
+            nextNode.setPrev(prevNode);
+        }
+    }
+
+    @Override
+    public void remove(int id) {
+        if (BrowsingHistory.containsKey(id)) {
+            Node node = BrowsingHistory.get(id);
+            removeNode(node);
+            BrowsingHistory.remove(id);
+        }
+    }
 
     @Override
     public List<Task> getHistory() {
-        return new ArrayList<>(browsingHistory);
+        return new ArrayList<>(getTasks());
     }
 
-    /* Просмотренная задача может быть потом удалена,
-       поэтому в истории нужно хранить задачу, а не её id.
-     */
     @Override
     public void add(Task task) {
         if (task == null) return;
-        if (browsingHistory.size() == HISTORY_LENGTH) {
-            browsingHistory.removeFirst();
-        }
-        browsingHistory.add(new Task(task));
+        int id = task.getUid();
+        remove(id);
+        BrowsingHistory.put(id, linkLast(task));
     }
 }

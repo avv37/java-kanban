@@ -31,4 +31,16 @@ class TaskTest {
         Assertions.assertEquals(task, task1);
     }
 
+    @Test
+    public void shouldChangeTaskOnlyNyManager() {
+        Task task1 = taskManager.getTaskById(task1Id);
+        task1.setName("New Name");
+        task1.setStatus(Status.DONE);
+
+        Task task2 = taskManager.getTaskById(task1Id);
+
+        Assertions.assertNotEquals(task1.getName(), task2.getName());
+        Assertions.assertNotEquals(task1.getStatus(), task2.getStatus());
+    }
+
 }

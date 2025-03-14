@@ -1,4 +1,3 @@
-import manager.InMemoryTaskManager;
 import manager.Managers;
 import manager.TaskManager;
 import task.Epic;
@@ -67,6 +66,8 @@ public class Main {
         subtask = taskManager.getSubtaskById(subtask1Id);
         printAllTasks(taskManager);
         System.out.println("----------------");
+        taskManager.deleteSubtaskById(subtask1Id);
+        System.out.println("----------------");
         System.out.println("Просмотр субтаска subtask2Id");
         subtask = taskManager.getSubtaskById(subtask2Id);
         printAllTasks(taskManager);
@@ -94,6 +95,13 @@ public class Main {
         System.out.println("просмотр task3");
         task = taskManager.getTaskById(task3Id);
         printAllTasks(taskManager);
+        System.out.println("----------------");
+        System.out.println("Просмотр эпика epic2");
+        epic = taskManager.getEpicById(epic2Id);
+        printAllTasks(taskManager);
+        System.out.println("----------------");
+        System.out.println("Удаление эпика epic2Id");
+        taskManager.deleteEpicById(epic2Id);
         System.out.println("---------------------");
         System.out.println("просмотр task1");
         task = taskManager.getTaskById(task1Id);
@@ -103,7 +111,10 @@ public class Main {
         epic = taskManager.getEpicById(epic2Id);
         printAllTasks(taskManager);
         System.out.println("----------------");
-
+        System.out.println("Просмотр субтаска subtask3id");
+        subtask = taskManager.getSubtaskById(subtask3id);
+        printAllTasks(taskManager);
+        System.out.println("----------------");
     }
 
     private static void printAllTasks(TaskManager manager) {

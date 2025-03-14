@@ -1,16 +1,17 @@
 package manager;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ManagersTest {
     @Test
     public void isGetDefaultReturnsNotNull() {
-        Assertions.assertNotNull(Managers.getDefault());
+        assertNotNull(Managers.getDefault());
     }
 
     @Test
     public void isGetDefaultHistoryReturnsNotNull() {
-        Assertions.assertNotNull(Managers.getDefaultHistory());
+        assertNotNull(Managers.getDefaultHistory());
     }
 }

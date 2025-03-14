@@ -13,7 +13,7 @@ public class InMemoryHistoryManager implements HistoryManager {
     private Node head;
     private Node tail;
 
-    private final Map<Integer, Node> BrowsingHistory = new HashMap<>();
+    private final Map<Integer, Node> browsingHistory = new HashMap<>();
 
     private Node linkLast(Task task) {
         final Node oldTail = tail;
@@ -57,10 +57,10 @@ public class InMemoryHistoryManager implements HistoryManager {
 
     @Override
     public void remove(int id) {
-        if (BrowsingHistory.containsKey(id)) {
-            Node node = BrowsingHistory.get(id);
+        if (browsingHistory.containsKey(id)) {
+            Node node = browsingHistory.get(id);
             removeNode(node);
-            BrowsingHistory.remove(id);
+            browsingHistory.remove(id);
         }
     }
 
@@ -74,6 +74,6 @@ public class InMemoryHistoryManager implements HistoryManager {
         if (task == null) return;
         int id = task.getUid();
         remove(id);
-        BrowsingHistory.put(id, linkLast(task));
+        browsingHistory.put(id, linkLast(task));
     }
 }

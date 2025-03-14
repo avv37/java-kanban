@@ -198,6 +198,7 @@ public class InMemoryTaskManager implements TaskManager {
         }
         subtasks.clear();
     }
+
     @Override
     public List<Task> getHistory() {
         return new ArrayList<>(historyManager.getHistory());

@@ -1,6 +1,5 @@
 package manager;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
@@ -9,6 +8,9 @@ import task.Subtask;
 import task.Task;
 
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 class InMemoryHistoryManagerTest {
 
@@ -28,7 +30,7 @@ class InMemoryHistoryManagerTest {
     public int subtask2Id;
 
     @BeforeEach
-    public void BeforeEach() {
+    public void beforeEach() {
         historyManager = Managers.getDefaultHistory();
         taskManager = Managers.getDefault();
 
@@ -62,9 +64,9 @@ class InMemoryHistoryManagerTest {
         task = taskManager.getTaskById(task1Id);
         List<Task> taskHistory = taskManager.getHistory();
 
-        Assertions.assertEquals(task1Id, taskHistory.get(3).getUid());
-        Assertions.assertEquals("First task description with change", taskHistory.get(3).getDescription());
-        Assertions.assertNotEquals(task1Id, taskHistory.get(1).getUid());
+        assertEquals(task1Id, taskHistory.get(3).getUid());
+        assertEquals("First task description with change", taskHistory.get(3).getDescription());
+        assertNotEquals(task1Id, taskHistory.get(1).getUid());
     }
 
     @Test
@@ -89,9 +91,9 @@ class InMemoryHistoryManagerTest {
             }
         }
 
-        Assertions.assertEquals(1, count);
-        Assertions.assertEquals(6, taskManager.getHistory().size());
-        Assertions.assertEquals(subtask1Id, taskHistory.getFirst().getUid());
+        assertEquals(1, count);
+        assertEquals(6, taskManager.getHistory().size());
+        assertEquals(subtask1Id, taskHistory.getFirst().getUid());
     }
 
 }

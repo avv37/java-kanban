@@ -147,11 +147,15 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteTaskById(int uid) {
+        historyManager.remove(uid);
         tasks.remove(uid);
     }
 
     @Override
     public void deleteAllTasks() {
+        for (Integer id : tasks.keySet()) {
+            historyManager.remove(id);
+        }
         tasks.clear();
     }
 
@@ -160,17 +164,24 @@ public class InMemoryTaskManager implements TaskManager {
         if (epics.containsKey(uid)) {
             Epic epic = epics.get(uid);
             if (epic != null) {
-                ArrayList<Subtask> epicSubtasks = epic.getSubtasks();
-                for (Subtask subtask : epicSubtasks) {
+                for (Subtask subtask : epic.getSubtasks()) {
+                    historyManager.remove(subtask.getUid());
                     subtasks.remove(subtask.getUid());
                 }
-                epics.remove(epic.getUid());
+                historyManager.remove(uid);
+                epics.remove(uid);
             }
         }
     }
 
     @Override
     public void deleteAllEpics() {
+        for (Integer id : subtasks.keySet()) {
+            historyManager.remove(id);
+        }
+        for (Integer id : epics.keySet()) {
+            historyManager.remove(id);
+        }
         subtasks.clear();
         epics.clear();
     }
@@ -182,6 +193,7 @@ public class InMemoryTaskManager implements TaskManager {
             if (subtask != null) {
                 Epic epic = epics.get(subtask.getEpicUid());
                 if (epic != null) {
+                    historyManager.remove(uid);
                     subtasks.remove(uid);
                     epic.getSubtasks().remove(subtask);
                     epic.changeStatusDependingOnSubtasks();
@@ -192,6 +204,9 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void deleteAllSubtasks() {
+        for (Integer id : subtasks.keySet()) {
+            historyManager.remove(id);
+        }
         for (Epic epic : epics.values()) {
             epic.getSubtasks().clear();
             epic.changeStatusDependingOnSubtasks();

@@ -1,12 +1,14 @@
 package manager;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import task.Epic;
 import task.Status;
 import task.Subtask;
 import task.Task;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class InMemoryTaskManagerTest {
     public TaskManager taskManager;
@@ -22,8 +24,9 @@ class InMemoryTaskManagerTest {
     public Subtask subtask2;
     public int subtask1Id;
     public int subtask2Id;
+
     @BeforeEach
-    public void BeforeEach() {
+    public void beforeEach() {
         taskManager = Managers.getDefault();
 
         task1 = new Task("Task1", "First task description");
@@ -53,9 +56,9 @@ class InMemoryTaskManagerTest {
         taskManager.updateTask(savedTask);
 
         Task savedTaskNew = taskManager.getTaskById(task1Id);
-        Assertions.assertEquals("Task 1.1", savedTaskNew.getName());
-        Assertions.assertEquals("First task description with change", savedTaskNew.getDescription());
-        Assertions.assertEquals(Status.IN_PROGRESS, savedTaskNew.getStatus());
+        assertEquals("Task 1.1", savedTaskNew.getName());
+        assertEquals("First task description with change", savedTaskNew.getDescription());
+        assertEquals(Status.IN_PROGRESS, savedTaskNew.getStatus());
     }
 
     @Test
@@ -65,21 +68,21 @@ class InMemoryTaskManagerTest {
         taskManager.updateTask(savedTask);
 
         Task savedTaskNew = taskManager.getTaskById(task1Id);
-        Assertions.assertEquals(savedTask.getUid(), savedTaskNew.getUid(), "ID не должен меняться.");
+        assertEquals(savedTask.getUid(), savedTaskNew.getUid(), "ID не должен меняться.");
     }
 
     @Test
     public void shouldDeleteTask() {
-        Assertions.assertEquals(3, taskManager.getTasks().size());
+        assertEquals(3, taskManager.getTasks().size());
         taskManager.deleteTaskById(task2Id);
-        Assertions.assertEquals(2, taskManager.getTasks().size());
+        assertEquals(2, taskManager.getTasks().size());
     }
 
     @Test
     public void shouldDeleteAllTasks() {
-        Assertions.assertEquals(3, taskManager.getTasks().size());
+        assertEquals(3, taskManager.getTasks().size());
         taskManager.deleteAllTasks();
-        Assertions.assertEquals(0, taskManager.getTasks().size());
+        assertEquals(0, taskManager.getTasks().size());
     }
 
     @Test
@@ -90,8 +93,8 @@ class InMemoryTaskManagerTest {
         taskManager.updateEpic(savedEpic);
 
         Epic savedEpicNew = taskManager.getEpicById(epic1Id);
-        Assertions.assertEquals("Epic1.1", savedEpicNew.getName());
-        Assertions.assertEquals("New First epic description", savedEpicNew.getDescription());
+        assertEquals("Epic1.1", savedEpicNew.getName());
+        assertEquals("New First epic description", savedEpicNew.getDescription());
     }
 
     @Test
@@ -101,7 +104,7 @@ class InMemoryTaskManagerTest {
         taskManager.updateEpic(savedEpic);
 
         Epic savedEpicNew = taskManager.getEpicById(epic1Id);
-        Assertions.assertEquals(Status.NEW, savedEpicNew.getStatus());
+        assertEquals(Status.NEW, savedEpicNew.getStatus());
     }
 
     @Test
@@ -112,29 +115,29 @@ class InMemoryTaskManagerTest {
         taskManager.updateEpic(savedEpic);
 
         Epic savedEpicNew = taskManager.getEpicById(epic1Id);
-        Assertions.assertEquals(Id, savedEpicNew.getUid());
+        assertEquals(Id, savedEpicNew.getUid());
     }
 
     @Test
     public void shouldDeleteEpic() {
-        Assertions.assertEquals(1, taskManager.getEpics().size());
-        Assertions.assertEquals(2, taskManager.getEpicById(epic1Id).getSubtasks().size());
+        assertEquals(1, taskManager.getEpics().size());
+        assertEquals(2, taskManager.getEpicById(epic1Id).getSubtasks().size());
 
         taskManager.deleteEpicById(epic1Id);
 
-        Assertions.assertEquals(0, taskManager.getEpics().size());
-        Assertions.assertNull(taskManager.getEpicById(epic1Id));
+        assertEquals(0, taskManager.getEpics().size());
+        assertNull(taskManager.getEpicById(epic1Id));
     }
 
     @Test
     public void shouldDeleteAllEpics() {
-        Assertions.assertEquals(1, taskManager.getEpics().size());
-        Assertions.assertEquals(2, taskManager.getEpicById(epic1Id).getSubtasks().size());
+        assertEquals(1, taskManager.getEpics().size());
+        assertEquals(2, taskManager.getEpicById(epic1Id).getSubtasks().size());
 
         taskManager.deleteAllEpics();
 
-        Assertions.assertEquals(0, taskManager.getEpics().size());
-        Assertions.assertNull(taskManager.getEpicById(epic1Id));
+        assertEquals(0, taskManager.getEpics().size());
+        assertNull(taskManager.getEpicById(epic1Id));
     }
 
     @Test
@@ -146,7 +149,7 @@ class InMemoryTaskManagerTest {
         Epic savedEpic = taskManager.getEpicById(epic1Id);
         Status status = savedEpic.getStatus();
 
-        Assertions.assertEquals(Status.IN_PROGRESS, status, "Статус не IN_PROGRESS");
+        assertEquals(Status.IN_PROGRESS, status, "Статус не IN_PROGRESS");
     }
 
     @Test
@@ -160,7 +163,7 @@ class InMemoryTaskManagerTest {
 
         Epic savedEpic = taskManager.getEpicById(epic1Id);
 
-        Assertions.assertEquals(Status.DONE, savedEpic.getStatus(), "Статус не DONE");
+        assertEquals(Status.DONE, savedEpic.getStatus(), "Статус не DONE");
     }
 
     @Test
@@ -172,10 +175,11 @@ class InMemoryTaskManagerTest {
         taskManager.updateSubtask(savedSubTask1);
 
         Subtask savedSubTaskNew = taskManager.getSubtaskById(subtask1Id);
-        Assertions.assertEquals("Subtask1.1", savedSubTaskNew.getName());
-        Assertions.assertEquals("Subtask1.1 for first Epic", savedSubTaskNew.getDescription());
-        Assertions.assertEquals(Status.IN_PROGRESS, savedSubTaskNew.getStatus());
+        assertEquals("Subtask1.1", savedSubTaskNew.getName());
+        assertEquals("Subtask1.1 for first Epic", savedSubTaskNew.getDescription());
+        assertEquals(Status.IN_PROGRESS, savedSubTaskNew.getStatus());
     }
+
     @Test
     public void shouldNotChangeSubtaskId() {
         Subtask savedSubTask1 = taskManager.getSubtaskById(subtask1Id);
@@ -183,19 +187,20 @@ class InMemoryTaskManagerTest {
         taskManager.updateSubtask(savedSubTask1);
 
         Subtask savedSubTaskNew = taskManager.getSubtaskById(subtask1Id);
-        Assertions.assertEquals(savedSubTask1.getUid(), savedSubTaskNew.getUid(), "ID не должен меняться.");
+        assertEquals(savedSubTask1.getUid(), savedSubTaskNew.getUid(), "ID не должен меняться.");
     }
 
     @Test
     public void shouldDeleteSubtask() {
-        Assertions.assertEquals(2, taskManager.getSubtasks().size());
+        assertEquals(2, taskManager.getSubtasks().size());
         taskManager.deleteSubtaskById(subtask2Id);
-        Assertions.assertEquals(1, taskManager.getSubtasks().size());
+        assertEquals(1, taskManager.getSubtasks().size());
     }
+
     @Test
     public void shouldDeleteAllSubtasks() {
-        Assertions.assertEquals(2, taskManager.getSubtasks().size());
+        assertEquals(2, taskManager.getSubtasks().size());
         taskManager.deleteAllSubtasks();
-        Assertions.assertEquals(0, taskManager.getSubtasks().size());
+        assertEquals(0, taskManager.getSubtasks().size());
     }
 }

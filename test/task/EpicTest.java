@@ -2,11 +2,13 @@ package task;
 
 import manager.Managers;
 import manager.TaskManager;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 
 class EpicTest {
@@ -20,7 +22,7 @@ class EpicTest {
 
 
     @BeforeEach
-    public void BeforeEach() {
+    public void beforeEach() {
         taskManager = Managers.getDefault();
         epic = new Epic("Epic1", "First epic description");
         epic1Id = taskManager.createEpic(epic);
@@ -37,16 +39,17 @@ class EpicTest {
     public void shouldCreateEpic() {
         Epic savedEpic = taskManager.getEpicById(epic1Id);
 
-        Assertions.assertNotNull(savedEpic, "Эпик не найден.");
-        Assertions.assertEquals(epic, savedEpic, "Эпики не совпадают.");
+        assertNotNull(savedEpic, "Эпик не найден.");
+        assertEquals(epic, savedEpic, "Эпики не совпадают.");
     }
 
     @Test
     public void isEpicsEqualsWhenIdsEquals() {
         Epic epic1 = taskManager.getEpicById(epic1Id);
 
-        Assertions.assertEquals(epic, epic1);
+        assertEquals(epic, epic1);
     }
+
     @Test
     public void shouldRemoveSubtaskOnlyByManager() {
         Epic epic1 = taskManager.getEpicById(epic1Id);
@@ -57,9 +60,9 @@ class EpicTest {
         taskManager.deleteSubtaskById(subtask1Id);
         Epic epic3 = taskManager.getEpicById(epic1Id);
 
-        Assertions.assertEquals(1, epic1.getSubtasks().size());
-        Assertions.assertEquals(2, epic2.getSubtasks().size());
-        Assertions.assertEquals(1, epic3.getSubtasks().size());
+        assertEquals(1, epic1.getSubtasks().size());
+        assertEquals(2, epic2.getSubtasks().size());
+        assertEquals(1, epic3.getSubtasks().size());
     }
 
 }

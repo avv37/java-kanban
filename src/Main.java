@@ -100,6 +100,7 @@ public class Main {
         epic = taskManager.getEpicById(epic2Id);
         printAllTasks(taskManager);
         System.out.println("----------------");
+        System.out.println("Удаление эпика epic2Id");
         taskManager.deleteEpicById(epic2Id);
         System.out.println("---------------------");
         System.out.println("просмотр task1");

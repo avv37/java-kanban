@@ -15,9 +15,26 @@ public class InMemoryTaskManager implements TaskManager {
     private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
-    private int getUidCounter() {
+    protected int getUidCounter() {
         return uidCounter++;
     }
+
+    protected void setUidCounter(int count) {
+        uidCounter = count;
+    }
+
+    protected HashMap<Integer, Task> getTasksMap() {
+        return tasks;
+    }
+
+    protected HashMap<Integer, Epic> getEpicsMap() {
+        return epics;
+    }
+
+    protected HashMap<Integer, Subtask> getSubtasksMap() {
+        return subtasks;
+    }
+
 
     @Override
     public ArrayList<Task> getTasks() {

@@ -40,30 +40,30 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
     private void isTaskManagerEqualsLoadFromFileManager() {
         FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
 
-        HashMap<Integer, Task> loadedTasks = loadedTaskManager.getTasksMap();
+        HashMap<Integer, Task> loadedTasks = loadedTaskManager.tasks;
         assertEquals(taskManager.getTasks().size(), loadedTaskManager.getTasks().size());
 
-        for (Map.Entry<Integer, Task> entry : taskManager.getTasksMap().entrySet()) {
+        for (Map.Entry<Integer, Task> entry : taskManager.tasks.entrySet()) {
             Integer id = entry.getKey();
             Task task = entry.getValue();
             Task loadedTask = loadedTasks.get(id);
             assertEquals(task, loadedTask);
         }
 
-        HashMap<Integer, Epic> loadedEpics = loadedTaskManager.getEpicsMap();
+        HashMap<Integer, Epic> loadedEpics = loadedTaskManager.epics;
         assertEquals(taskManager.getEpics().size(), loadedTaskManager.getEpics().size());
 
-        for (Map.Entry<Integer, Epic> entry : taskManager.getEpicsMap().entrySet()) {
+        for (Map.Entry<Integer, Epic> entry : taskManager.epics.entrySet()) {
             Integer id = entry.getKey();
             Epic epic = entry.getValue();
             Epic loadedEpic = loadedEpics.get(id);
             assertEquals(epic, loadedEpic);
         }
 
-        HashMap<Integer, Subtask> loadedSubtasks = loadedTaskManager.getSubtasksMap();
-        assertEquals(taskManager.getSubtasks().size(), loadedTaskManager.getSubtasks().size());
+        HashMap<Integer, Subtask> loadedSubtasks = loadedTaskManager.subtasks;
+        assertEquals(taskManager.getSubtasks().size(), loadedTaskManager.subtasks.size());
 
-        for (Map.Entry<Integer, Subtask> entry : taskManager.getSubtasksMap().entrySet()) {
+        for (Map.Entry<Integer, Subtask> entry : taskManager.subtasks.entrySet()) {
             Integer id = entry.getKey();
             Subtask subtask = entry.getValue();
             Subtask loadedSubtask = loadedSubtasks.get(id);
@@ -98,7 +98,7 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
 
         FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
 
-        HashMap<Integer, Task> loadedTasks = loadedTaskManager.getTasksMap();
+        HashMap<Integer, Task> loadedTasks = loadedTaskManager.tasks;
         Task loadedTask = loadedTasks.get(taskId);
         assertNotNull(loadedTask);
         assertEquals(taskManager.getTaskById(taskId), loadedTaskManager.getTaskById(taskId));
@@ -111,7 +111,7 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
 
         FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
 
-        HashMap<Integer, Epic> loadedEpics = loadedTaskManager.getEpicsMap();
+        HashMap<Integer, Epic> loadedEpics = loadedTaskManager.epics;
         Epic loadedEpic = loadedEpics.get(epicId);
 
         assertNotNull(loadedEpic);
@@ -126,7 +126,7 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
 
         FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
 
-        HashMap<Integer, Subtask> loadedSubtasks = loadedTaskManager.getSubtasksMap();
+        HashMap<Integer, Subtask> loadedSubtasks = loadedTaskManager.subtasks;
         Subtask loadedSubtask = loadedSubtasks.get(subtaskId);
         assertNotNull(loadedSubtask);
         assertEquals(taskManager.getSubtaskById(subtaskId), loadedTaskManager.getSubtaskById(subtaskId));

@@ -9,32 +9,15 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InMemoryTaskManager implements TaskManager {
-    private int uidCounter = 1;
-    private final HashMap<Integer, Task> tasks = new HashMap<>();
-    private final HashMap<Integer, Epic> epics = new HashMap<>();
-    private final HashMap<Integer, Subtask> subtasks = new HashMap<>();
+    protected int uidCounter = 1;
+    protected final HashMap<Integer, Task> tasks = new HashMap<>();
+    protected final HashMap<Integer, Epic> epics = new HashMap<>();
+    protected final HashMap<Integer, Subtask> subtasks = new HashMap<>();
     private final HistoryManager historyManager = Managers.getDefaultHistory();
 
     protected int getUidCounter() {
         return uidCounter++;
     }
-
-    protected void setUidCounter(int count) {
-        uidCounter = count;
-    }
-
-    protected HashMap<Integer, Task> getTasksMap() {
-        return tasks;
-    }
-
-    protected HashMap<Integer, Epic> getEpicsMap() {
-        return epics;
-    }
-
-    protected HashMap<Integer, Subtask> getSubtasksMap() {
-        return subtasks;
-    }
-
 
     @Override
     public ArrayList<Task> getTasks() {

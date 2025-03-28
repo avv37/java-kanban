@@ -18,6 +18,16 @@ public class Subtask extends Task {
         this.status = subtask.status;
     }
 
+    public Subtask(int uid, String name, String description, Status status, int epicUid) {
+        super(uid, name, description, status);
+        this.epicUid = epicUid;
+    }
+
+    @Override
+    public String toString(Type type) {
+        return super.toString(type) + this.epicUid;
+    }
+
     @Override
     public String toString() {
         return "Subtask{" +

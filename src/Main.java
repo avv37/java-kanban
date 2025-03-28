@@ -1,3 +1,4 @@
+import manager.FileBackedTaskManager;
 import manager.Managers;
 import manager.TaskManager;
 import task.Epic;
@@ -5,13 +6,16 @@ import task.Status;
 import task.Subtask;
 import task.Task;
 
+import java.io.File;
+
 public class Main {
 
-    public static TaskManager taskManager = Managers.getDefault();
+
+    public static File testFile = new File(System.getProperty("user.home"), "backedTasks.csv");
+    public static TaskManager taskManager = Managers.getDefaultFileBacked(testFile);
 
     public static void main(String[] args) {
         System.out.println("Поехали!");
-
         System.out.println("Создание задач, эпиков и подзадач");
         Task task = new Task("Task 1", "First task description");
         int task1Id = taskManager.createTask(task);
@@ -66,54 +70,11 @@ public class Main {
         subtask = taskManager.getSubtaskById(subtask1Id);
         printAllTasks(taskManager);
         System.out.println("----------------");
-        taskManager.deleteSubtaskById(subtask1Id);
-        System.out.println("----------------");
-        System.out.println("Просмотр субтаска subtask2Id");
-        subtask = taskManager.getSubtaskById(subtask2Id);
-        printAllTasks(taskManager);
-        System.out.println("----------------");
-        System.out.println("Просмотр эпика epic1");
-        epic = taskManager.getEpicById(epic1Id);
-        printAllTasks(taskManager);
-        System.out.println("----------------");
-        System.out.println("просмотр task2");
-        task = taskManager.getTaskById(task2Id);
-        printAllTasks(taskManager);
-        System.out.println("---------------------");
-        System.out.println("просмотр task1");
-        task = taskManager.getTaskById(task1Id);
-        printAllTasks(taskManager);
-        System.out.println("---------------------");
-        System.out.println("Просмотр эпика epic1");
-        epic = taskManager.getEpicById(epic1Id);
-        printAllTasks(taskManager);
-        System.out.println("----------------");
-        System.out.println("Просмотр субтаска subtask3id");
-        subtask = taskManager.getSubtaskById(subtask3id);
-        printAllTasks(taskManager);
-        System.out.println("----------------");
-        System.out.println("просмотр task3");
-        task = taskManager.getTaskById(task3Id);
-        printAllTasks(taskManager);
-        System.out.println("----------------");
-        System.out.println("Просмотр эпика epic2");
-        epic = taskManager.getEpicById(epic2Id);
-        printAllTasks(taskManager);
-        System.out.println("----------------");
-        System.out.println("Удаление эпика epic2Id");
-        taskManager.deleteEpicById(epic2Id);
-        System.out.println("---------------------");
-        System.out.println("просмотр task1");
-        task = taskManager.getTaskById(task1Id);
-        printAllTasks(taskManager);
-        System.out.println("---------------------");
-        System.out.println("Просмотр эпика epic2");
-        epic = taskManager.getEpicById(epic2Id);
-        printAllTasks(taskManager);
-        System.out.println("----------------");
-        System.out.println("Просмотр субтаска subtask3id");
-        subtask = taskManager.getSubtaskById(subtask3id);
-        printAllTasks(taskManager);
+
+        FileBackedTaskManager newManager = FileBackedTaskManager.loadFromFile(testFile);
+        System.out.println("Загруженный из файла менеджер");
+        printAllTasks(newManager);
+
         System.out.println("----------------");
     }
 
@@ -135,10 +96,6 @@ public class Main {
             System.out.println(subtask);
         }
 
-        System.out.println("История:");
-        for (Task task : manager.getHistory()) {
-            System.out.println(task);
-        }
     }
 
 }

@@ -20,6 +20,13 @@ public class Task {
         this.status = task.status;
     }
 
+    public Task(int uid, String name, String description, Status status) {
+        this.name = name;
+        this.description = description;
+        this.uid = uid;
+        this.status = status;
+    }
+
     public String getName() {
         return name;
     }
@@ -52,6 +59,19 @@ public class Task {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public Task fromString(String value) {
+        String[] fields = value.split(",");
+        int uid = Integer.parseInt(fields[0]);
+        String name = fields[2];
+        Status status = Status.valueOf(fields[3]);
+        String description = fields[4];
+        return new Task(uid, name, description, status);
+    }
+
+    public String toString(Type type) {
+        return String.format("%d,%s,%s,%s,%s,%s", this.uid, type.name(), this.name, this.status, this.description, "");
     }
 
     @Override

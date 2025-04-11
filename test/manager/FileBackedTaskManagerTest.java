@@ -118,7 +118,8 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
 
     @Test
     public void shouldAddTask() {
-        Task task = new Task("New Task", "New Task description", Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 11, 9, 30));
+        Task task = new Task("New Task", "New Task description", Duration.ofMinutes(60),
+                LocalDateTime.of(2025, 3, 11, 9, 30));
         int taskId = taskManager.createTask(task);
 
         FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
@@ -146,7 +147,8 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
     @Test
     public void shouldAddSubtask() {
         Epic epic = taskManager.getEpicById(epic1Id);
-        Subtask subtask = new Subtask("New Subtask", "New Subtask for Epic1", epic, Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 11, 11, 0));
+        Subtask subtask = new Subtask("New Subtask", "New Subtask for Epic1", epic,
+                Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 11, 11, 0));
         int subtaskId = taskManager.createSubtask(subtask);
 
         FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
@@ -155,6 +157,9 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
         Subtask loadedSubtask = loadedSubtasks.get(subtaskId);
         assertNotNull(loadedSubtask);
         assertEquals(taskManager.getSubtaskById(subtaskId), loadedTaskManager.getSubtaskById(subtaskId));
+
+        assertEquals(taskManager.getEpicById(epic1Id), loadedTaskManager.getEpicById(epic1Id));
+        assertEquals(taskManager.getEpicById(epic1Id).getEndTime(), loadedTaskManager.getEpicById(epic1Id).getEndTime());
     }
 
     @Test

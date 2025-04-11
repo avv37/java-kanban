@@ -89,8 +89,8 @@ public class InMemoryTaskManager implements TaskManager {
     public int createTask(Task task) {
         if (task != null) {
             int uid = getUidCounter();
-            task.setUid(uid);
-            if (canAddTaskWithoutIntersect(task, null)) {
+            if (canAddTaskWithoutIntersect(task)) {
+                task.setUid(uid);
                 tasks.put(uid, task);
                 putToPrioritizedTasks(task, null);
                 return uid;
@@ -116,9 +116,9 @@ public class InMemoryTaskManager implements TaskManager {
             int epicUid = subtask.getEpicUid();
             Epic epic = epics.get(epicUid);
             if (epic != null) {
-                int uid = getUidCounter();
-                subtask.setUid(uid);
-                if (canAddTaskWithoutIntersect(subtask, null)) {
+                if (canAddTaskWithoutIntersect(subtask)) {
+                    int uid = getUidCounter();
+                    subtask.setUid(uid);
                     subtasks.put(uid, subtask);
                     epic.getSubtasks().add(subtask);
                     epic.changeStatusDependingOnSubtasks();
@@ -135,7 +135,7 @@ public class InMemoryTaskManager implements TaskManager {
     public void updateTask(Task task) {
         if (tasks.containsKey(task.getUid())) {
             Task oldTask = tasks.get(task.getUid());
-            if (canAddTaskWithoutIntersect(task, oldTask)) {
+            if (canAddTaskWithoutIntersect(task)) {
                 tasks.put(task.getUid(), task);
                 putToPrioritizedTasks(task, oldTask);
             }
@@ -157,7 +157,7 @@ public class InMemoryTaskManager implements TaskManager {
         int subtaskId = subtask.getUid();
         if (subtasks.containsKey(subtaskId)) {
             Subtask oldSubtask = subtasks.get(subtaskId);
-            if (canAddTaskWithoutIntersect(subtask, oldSubtask)) {
+            if (canAddTaskWithoutIntersect(subtask)) {
                 subtasks.put(subtaskId, subtask);
                 Epic epic = epics.get(oldSubtask.getEpicUid());
                 if (epic != null) {
@@ -258,10 +258,11 @@ public class InMemoryTaskManager implements TaskManager {
         return new ArrayList<>(prioritizedTasks);
     }
 
-    public boolean canAddTaskWithoutIntersect(Task newTask, Task oldTask) {
+    private boolean canAddTaskWithoutIntersect(Task newTask) {
         if (newTask.getStartTime() == null) {
             return true;
         }
+        String message = (newTask.getUid() == 0) ? "Новая задача " : ("Задача " + newTask.getUid());
         if (!prioritizedTasks.isEmpty()) {
             prioritizedTasks.stream()
                     .filter(task1 -> task1.getUid() != newTask.getUid())
@@ -269,7 +270,7 @@ public class InMemoryTaskManager implements TaskManager {
                     .findFirst()
                     .ifPresentOrElse(
                             task1 -> {
-                                throw new SaveTaskException("Задача " + newTask.getUid()
+                                throw new SaveTaskException(message
                                         + " пересекается по времени с существующей задачей " + task1.getUid());
                             },
                             () -> {

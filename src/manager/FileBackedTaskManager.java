@@ -41,7 +41,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             List<String> lines = readFile(file);
             lines.removeFirst();
-
+            InMemoryTaskManager prioTasks = new InMemoryTaskManager();
             int maxId = 0;
             for (String line : lines) {
                 String[] fields = line.split(",", -1);
@@ -57,11 +57,13 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         fileBackedTaskManager.epics.put(uid, epic);
                     } else if (anyTask instanceof Subtask subtask) {
                         fileBackedTaskManager.subtasks.put(uid, subtask);
+                        prioTasks.putToPrioritizedTasks(subtask, null);
                         int epicId = Integer.parseInt(fields[5]);
                         fileBackedTaskManager.epics.get(epicId).getSubtasks().add(subtask);
                         fileBackedTaskManager.epics.get(epicId).calculateStartTimeDurationEndTime();
                     } else if (anyTask instanceof Task task) {
                         fileBackedTaskManager.tasks.put(uid, task);
+                        prioTasks.putToPrioritizedTasks(task, null);
                     }
                 }
             }

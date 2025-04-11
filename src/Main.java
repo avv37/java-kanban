@@ -7,6 +7,8 @@ import task.Subtask;
 import task.Task;
 
 import java.io.File;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 public class Main {
 
@@ -17,25 +19,49 @@ public class Main {
     public static void main(String[] args) {
         System.out.println("Поехали!");
         System.out.println("Создание задач, эпиков и подзадач");
-        Task task = new Task("Task 1", "First task description");
+        Task task = new Task("Task 1", "First task description", Duration.ofMinutes(100), null);
         int task1Id = taskManager.createTask(task);
-        task = new Task("Task 2", "Second task description");
+        task = new Task("Task 2", "Second task description", Duration.ofMinutes(120),
+                LocalDateTime.of(2025, 3, 11, 13, 0));
         int task2Id = taskManager.createTask(task);
-        task = new Task("Task 3", "Third task description");
+        task = new Task("Task 3", "Third task description", Duration.ofMinutes(120),
+                LocalDateTime.of(2025, 3, 11, 10, 30));
         int task3Id = taskManager.createTask(task);
-
+        System.out.println("task3Id = " + task3Id);
         Epic epic = new Epic("Epic 1", "First epic description");
         int epic1Id = taskManager.createEpic(epic);
-        Subtask subtask = new Subtask("Subtask 1", "First Subtask for first Epic", epic);
+        System.out.println("epic1Id = " + epic1Id);
+
+        Subtask subtask = new Subtask("Subtask 1", "First Subtask for first Epic", epic,
+                Duration.ofMinutes(150), LocalDateTime.of(2025, 3, 12, 11, 30));
         int subtask1Id = taskManager.createSubtask(subtask);
-        subtask = new Subtask("Subtask 2", "Second Subtask for first Epic", epic);
+        System.out.println("subtask1Id = " + subtask1Id);
+
+        subtask = new Subtask("Subtask 2", "Second Subtask for first Epic", epic,
+                Duration.ofMinutes(300), LocalDateTime.of(2025, 3, 12, 15, 30));
         int subtask2Id = taskManager.createSubtask(subtask);
+        System.out.println("subtask2Id = " + subtask2Id);
+
+        subtask = new Subtask("Subtask 3", "3-d Subtask for first Epic", epic,
+                Duration.ofMinutes(200), LocalDateTime.of(2025, 3, 13, 15, 30));
+        int subtask3Id = taskManager.createSubtask(subtask);
+        System.out.println("subtask3Id = " + subtask3Id);
 
         epic = new Epic("Epic 2", "Second epic description");
         int epic2Id = taskManager.createEpic(epic);
-        subtask = new Subtask("Subtask 1 (2)", "First Subtask for second Epic", epic);
-        int subtask3id = taskManager.createSubtask(subtask);
+        System.out.println("epic2Id = " + epic2Id);
 
+        subtask = new Subtask("Subtask 1 (2)", "First Subtask for second Epic", epic,
+                Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 12, 10, 30));
+        int subtask3id = taskManager.createSubtask(subtask);
+        System.out.println("subtask3id = " + subtask3id);
+
+        System.out.println(taskManager.getPrioritizedTasks());
+        System.out.println("---------------------");
+
+        taskManager.deleteTaskById(10);
+
+        System.out.println("---------------------");
         System.out.println("Список всех задач task   taskManager.getTasks()");
         System.out.println(taskManager.getTasks());
         System.out.println("Список всех эпиков epic   taskManager.getEpics()");
@@ -48,6 +74,7 @@ public class Main {
         System.out.println();
         System.out.println("просмотр task1");
         task = taskManager.getTaskById(task1Id);
+        System.out.println(taskManager.getHistory());
         System.out.println("---------------------");
         task.setName("Task 1.1");
         task.setDescription("First task description with change");
@@ -55,6 +82,7 @@ public class Main {
         task.setUid(111);
         taskManager.updateTask(task);
         System.out.println("второй просмотр Task 1: " + taskManager.getTaskById(task1Id));
+        System.out.println(taskManager.getHistory());
         System.out.println("---------------------");
         printAllTasks(taskManager);
         System.out.println("----------------");

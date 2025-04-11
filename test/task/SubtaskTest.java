@@ -5,6 +5,9 @@ import manager.TaskManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -23,9 +26,11 @@ class SubtaskTest {
         taskManager = Managers.getDefault();
         epic = new Epic("Epic1", "First epic description");
         epic1Id = taskManager.createEpic(epic);
-        subtask1 = new Subtask("Subtask1", "First Subtask for first Epic", epic);
+        subtask1 = new Subtask("Subtask1", "First Subtask for first Epic", epic, Duration.ofMinutes(60),
+                LocalDateTime.of(2025, 3, 10, 10, 0));
         subtask1Id = taskManager.createSubtask(subtask1);
-        subtask2 = new Subtask("Subtask2", "Second Subtask for first Epic", epic);
+        subtask2 = new Subtask("Subtask2", "Second Subtask for first Epic", epic, Duration.ofMinutes(60),
+                LocalDateTime.of(2025, 3, 10, 16, 0));
         subtask2Id = taskManager.createSubtask(subtask2);
     }
 

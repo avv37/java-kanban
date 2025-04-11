@@ -1,5 +1,8 @@
 package task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 public class Task {
@@ -8,9 +11,22 @@ public class Task {
     protected int uid = 0;
     protected Status status = Status.NEW;
 
+    protected Duration duration = Duration.ZERO;
+
+    protected LocalDateTime startTime;
+
+    public static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+
     public Task(String name, String description) {
         this.name = name;
         this.description = description;
+    }
+
+    public Task(String name, String description, Duration duration, LocalDateTime startTime) {
+        this.name = name;
+        this.description = description;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public Task(Task task) {
@@ -18,13 +34,17 @@ public class Task {
         this.description = task.description;
         this.uid = task.uid;
         this.status = task.status;
+        this.duration = task.duration;
+        this.startTime = task.startTime;
     }
 
-    public Task(int uid, String name, String description, Status status) {
+    public Task(int uid, String name, String description, Status status, Duration duration, LocalDateTime startTime) {
         this.name = name;
         this.description = description;
         this.uid = uid;
         this.status = status;
+        this.duration = duration;
+        this.startTime = startTime;
     }
 
     public String getName() {
@@ -61,17 +81,32 @@ public class Task {
         this.status = status;
     }
 
+    public LocalDateTime getEndTime() {
+        return (startTime == null ? null : startTime.plus(duration));
+    }
+
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
+
+    public Duration getDuration() {
+        return duration;
+    }
+
     public Task fromString(String value) {
         String[] fields = value.split(",");
         int uid = Integer.parseInt(fields[0]);
         String name = fields[2];
         Status status = Status.valueOf(fields[3]);
         String description = fields[4];
-        return new Task(uid, name, description, status);
+        Duration duration = Duration.ofMinutes(Long.parseLong(fields[6]));
+        LocalDateTime startTime = fields[7].isEmpty() ? null : LocalDateTime.parse(fields[7], DATE_TIME_FORMATTER);
+        return new Task(uid, name, description, status, duration, startTime);
     }
 
     public String toString(Type type) {
-        return String.format("%d,%s,%s,%s,%s,%s", this.uid, type.name(), this.name, this.status, this.description, "");
+        return String.format("%d,%s,%s,%s,%s,%s,%s,%s", this.uid, type.name(), this.name, this.status, this.description,
+                "", this.duration == null ? 0 : this.duration.toMinutes(), this.startTime == null ? "" : this.startTime.format(DATE_TIME_FORMATTER));
     }
 
     @Override
@@ -82,6 +117,8 @@ public class Task {
         if (uid != task.uid) return false;
         if (!Objects.equals(name, task.name)) return false;
         if (!Objects.equals(description, task.description)) return false;
+        if (!Objects.equals(duration, task.duration)) return false;
+        if (!Objects.equals(startTime, task.startTime)) return false;
         return status == task.status;
     }
 
@@ -97,6 +134,8 @@ public class Task {
                 ", description='" + description + '\'' +
                 ", uid=" + uid +
                 ", status=" + status +
+                ", duration=" + (duration == null ? 0 : duration.toMinutes()) +
+                ", startTime=" + (startTime == null ? "" : startTime.format(DATE_TIME_FORMATTER)) +
                 '}';
     }
 }

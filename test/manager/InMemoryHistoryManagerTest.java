@@ -7,10 +7,13 @@ import task.Status;
 import task.Subtask;
 import task.Task;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class InMemoryHistoryManagerTest {
 
@@ -34,21 +37,21 @@ class InMemoryHistoryManagerTest {
         historyManager = Managers.getDefaultHistory();
         taskManager = Managers.getDefault();
 
-        task1 = new Task("Task1", "First task description");
+        task1 = new Task("Task1", "First task description", Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 10, 10, 0));
         task1Id = taskManager.createTask(task1);
-        task2 = new Task("Task2", "Second task description");
+        task2 = new Task("Task2", "Second task description", Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 10, 11, 0));
         task2Id = taskManager.createTask(task2);
-        task3 = new Task("Task3", "Third task description");
+        task3 = new Task("Task3", "Third task description", Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 10, 12, 0));
         task3Id = taskManager.createTask(task3);
 
         epic1 = new Epic("Epic1", "First epic description");
         epic1Id = taskManager.createEpic(epic1);
         Epic savedEpic1 = taskManager.getEpicById(epic1Id);
 
-        subtask1 = new Subtask("Subtask1", "Subtask1 for Epic1", savedEpic1);
+        subtask1 = new Subtask("Subtask1", "Subtask1 for Epic1", savedEpic1, Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 10, 13, 0));
         subtask1Id = taskManager.createSubtask(subtask1);
 
-        subtask2 = new Subtask("Subtask2", "Subtask2 for Epic1", savedEpic1);
+        subtask2 = new Subtask("Subtask2", "Subtask2 for Epic1", savedEpic1, Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 10, 14, 0));
         subtask2Id = taskManager.createSubtask(subtask2);
     }
 
@@ -94,6 +97,18 @@ class InMemoryHistoryManagerTest {
         assertEquals(1, count);
         assertEquals(6, taskManager.getHistory().size());
         assertEquals(subtask1Id, taskHistory.getFirst().getUid());
+    }
+
+    @Test
+    public void shouldDeleteTask() {
+        assertEquals(3, taskManager.getTasks().size());
+        taskManager.deleteTaskById(task2Id);
+        assertEquals(2, taskManager.getTasks().size());
+        // удаление из истории
+        List<Task> history = taskManager.getHistory().stream()
+                .filter(task -> task2Id == task.getUid())
+                .toList();
+        assertTrue(history.isEmpty());
     }
 
 }

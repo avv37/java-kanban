@@ -8,7 +8,11 @@ import task.Task;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -53,11 +57,30 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
         HashMap<Integer, Epic> loadedEpics = loadedTaskManager.epics;
         assertEquals(taskManager.getEpics().size(), loadedTaskManager.getEpics().size());
 
+        Comparator<Subtask> comparator = (o1, o2) -> (o1.getStartTime().isBefore(o2.getStartTime()) ? -1 :
+                (o1.getStartTime().equals(o2.getStartTime()) ? 0 : 1));
+
+        // метод equals(Object o) включает проверку всех полей, кроме epicUid в сабтаске и endTime и subtasks в эпике
         for (Map.Entry<Integer, Epic> entry : taskManager.epics.entrySet()) {
             Integer id = entry.getKey();
             Epic epic = entry.getValue();
             Epic loadedEpic = loadedEpics.get(id);
             assertEquals(epic, loadedEpic);
+            assertEquals(epic.getEndTime(), loadedEpic.getEndTime());
+            // упорядочиваем подзадачи по startTime
+            List<Subtask> subtasks = epic.getSubtasks().stream()
+                    .sorted(comparator)
+                    .toList();
+            List<Subtask> loadedSubtasks = loadedEpic.getSubtasks().stream()
+                    .sorted(comparator)
+                    .toList();
+            // у эпика восстанавливаются подзадачи
+            assertEquals(subtasks.size(), loadedSubtasks.size());
+            for (int i = 0; i < subtasks.size(); i++) {
+                assertEquals(subtasks.get(i), loadedSubtasks.get(i));
+                // у подзадач восстанавливаются эпики
+                assertEquals(subtasks.get(i).getEpicUid(), loadedSubtasks.get(i).getEpicUid());
+            }
         }
 
         HashMap<Integer, Subtask> loadedSubtasks = loadedTaskManager.subtasks;
@@ -68,6 +91,8 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
             Subtask subtask = entry.getValue();
             Subtask loadedSubtask = loadedSubtasks.get(id);
             assertEquals(subtask, loadedSubtask);
+            // у подзадач восстанавливаются эпики
+            assertEquals(subtask.getEpicUid(), loadedSubtask.getEpicUid());
         }
 
 
@@ -93,7 +118,8 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
 
     @Test
     public void shouldAddTask() {
-        Task task = new Task("New Task", "New Task description");
+        Task task = new Task("New Task", "New Task description", Duration.ofMinutes(60),
+                LocalDateTime.of(2025, 3, 11, 9, 30));
         int taskId = taskManager.createTask(task);
 
         FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
@@ -115,13 +141,14 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
         Epic loadedEpic = loadedEpics.get(epicId);
 
         assertNotNull(loadedEpic);
-        assertEquals(taskManager.getEpicById(epicId), loadedTaskManager.getEpicById(epicId));
+        assertEquals(taskManager.getEpicById(epicId), loadedEpic);
     }
 
     @Test
     public void shouldAddSubtask() {
         Epic epic = taskManager.getEpicById(epic1Id);
-        Subtask subtask = new Subtask("New Subtask", "New Subtask for Epic1", epic);
+        Subtask subtask = new Subtask("New Subtask", "New Subtask for Epic1", epic,
+                Duration.ofMinutes(60), LocalDateTime.of(2025, 3, 11, 11, 0));
         int subtaskId = taskManager.createSubtask(subtask);
 
         FileBackedTaskManager loadedTaskManager = FileBackedTaskManager.loadFromFile(testFile);
@@ -130,6 +157,9 @@ public class FileBackedTaskManagerTest extends TaskManagerAbstractTest<FileBacke
         Subtask loadedSubtask = loadedSubtasks.get(subtaskId);
         assertNotNull(loadedSubtask);
         assertEquals(taskManager.getSubtaskById(subtaskId), loadedTaskManager.getSubtaskById(subtaskId));
+
+        assertEquals(taskManager.getEpicById(epic1Id), loadedTaskManager.getEpicById(epic1Id));
+        assertEquals(taskManager.getEpicById(epic1Id).getEndTime(), loadedTaskManager.getEpicById(epic1Id).getEndTime());
     }
 
     @Test

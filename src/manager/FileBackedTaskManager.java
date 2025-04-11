@@ -15,6 +15,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +24,7 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
 
     private final File tasksFile;
 
-    private static final String HEADER = "id,type,name,status,description,epic\n";
+    private static final String HEADER = "id,type,name,status,description,epic,duration,startTime\n";
 
     public FileBackedTaskManager(File tasksFile) {
         this.tasksFile = tasksFile;
@@ -39,10 +41,10 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         try {
             List<String> lines = readFile(file);
             lines.removeFirst();
-
+            InMemoryTaskManager prioTasks = new InMemoryTaskManager();
             int maxId = 0;
             for (String line : lines) {
-                String[] fields = line.split(",");
+                String[] fields = line.split(",", -1);
                 // Если есть такой тип задачи
                 if (Type.isType(fields[1])) {
                     int uid = Integer.parseInt(fields[0]);
@@ -55,17 +57,20 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
                         fileBackedTaskManager.epics.put(uid, epic);
                     } else if (anyTask instanceof Subtask subtask) {
                         fileBackedTaskManager.subtasks.put(uid, subtask);
+                        prioTasks.putToPrioritizedTasks(subtask, null);
                         int epicId = Integer.parseInt(fields[5]);
                         fileBackedTaskManager.epics.get(epicId).getSubtasks().add(subtask);
+                        fileBackedTaskManager.epics.get(epicId).calculateStartTimeDurationEndTime();
                     } else if (anyTask instanceof Task task) {
                         fileBackedTaskManager.tasks.put(uid, task);
+                        prioTasks.putToPrioritizedTasks(task, null);
                     }
                 }
             }
             // устанавливаем счетчик задач в менеджере
             fileBackedTaskManager.uidCounter = maxId + 1;
         } catch (RuntimeException e) {
-            throw new ManagerReadFileException("Ошибка при чтении файла " + file.getPath(), e.getCause());
+            throw new ManagerReadFileException("Ошибка при чтении файла " + file.getPath() + "; " + e.getMessage(), e.getCause());
         }
         return fileBackedTaskManager;
     }
@@ -87,13 +92,15 @@ public class FileBackedTaskManager extends InMemoryTaskManager {
         String name = fields[2];
         Status status = Status.valueOf(fields[3]);
         String description = fields[4];
+        Duration duration = fields[6].isEmpty() || Integer.parseInt(fields[6]) == 0 ? Duration.ZERO : Duration.ofMinutes(Long.parseLong(fields[6]));
+        LocalDateTime startTime = fields[7].isEmpty() ? null : LocalDateTime.parse(fields[7], Task.DATE_TIME_FORMATTER);
         if (fields[1].equalsIgnoreCase("TASK")) {
-            return new Task(uid, name, description, status);
+            return new Task(uid, name, description, status, duration, startTime);
         } else if (fields[1].equalsIgnoreCase("SUBTASK")) {
             int epicId = Integer.parseInt(fields[5]);
-            return new Subtask(uid, name, description, status, epicId);
+            return new Subtask(uid, name, description, status, epicId, duration, startTime);
         } else if (fields[1].equalsIgnoreCase("EPIC")) {
-            return new Epic(uid, name, description, status);
+            return new Epic(uid, name, description, status, duration, startTime);
         } else {
             return null;
         }

@@ -87,14 +87,12 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
-        if (task != null) {
+        if (task != null && canAddTaskWithoutIntersect(task)) {
             int uid = getUidCounter();
-            if (canAddTaskWithoutIntersect(task)) {
-                task.setUid(uid);
-                tasks.put(uid, task);
-                putToPrioritizedTasks(task, null);
-                return uid;
-            }
+            task.setUid(uid);
+            tasks.put(uid, task);
+            putToPrioritizedTasks(task, null);
+            return uid;
         }
         return 0;
     }
@@ -280,7 +278,7 @@ public class InMemoryTaskManager implements TaskManager {
         return true;
     }
 
-    public void putToPrioritizedTasks(Task newTask, Task oldTask) {
+    protected void putToPrioritizedTasks(Task newTask, Task oldTask) {
         if (oldTask == null && newTask.getStartTime() == null) {
             return;
         }
@@ -294,7 +292,7 @@ public class InMemoryTaskManager implements TaskManager {
     }
 
 
-    public boolean areTasksIntersected(Task task1, Task task2) {
+    private boolean areTasksIntersected(Task task1, Task task2) {
         if (task1.getStartTime().isEqual(task2.getStartTime()) || task1.getEndTime().isEqual(task2.getEndTime())) {
             return true;
         }

@@ -1,5 +1,6 @@
 package manager;
 
+import exception.NotFoundException;
 import exception.SaveTaskException;
 import task.Epic;
 import task.Subtask;
@@ -47,32 +48,32 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public Task getTaskById(int uid) {
-        if (tasks.containsKey(uid)) {
-            Task task = new Task(tasks.get(uid));
-            historyManager.add(task);
-            return task;
+        if (!tasks.containsKey(uid)) {
+            throw new NotFoundException("Задача id = " + uid + " не найдена");
         }
-        return null;
+        Task task = new Task(tasks.get(uid));
+        historyManager.add(task);
+        return task;
     }
 
     @Override
     public Epic getEpicById(int uid) {
-        if (epics.containsKey(uid)) {
-            Epic epic = new Epic(epics.get(uid));
-            historyManager.add(epic);
-            return epic;
+        if (!epics.containsKey(uid)) {
+            throw new NotFoundException("Эпик id = " + uid + " не найден");
         }
-        return null;
+        Epic epic = new Epic(epics.get(uid));
+        historyManager.add(epic);
+        return epic;
     }
 
     @Override
     public Subtask getSubtaskById(int uid) {
-        if (subtasks.containsKey(uid)) {
-            Subtask subtask = new Subtask(subtasks.get(uid));
-            historyManager.add(subtask);
-            return subtask;
+        if (!subtasks.containsKey(uid)) {
+            throw new NotFoundException("Подзадача id = " + uid + " не найдена");
         }
-        return null;
+        Subtask subtask = new Subtask(subtasks.get(uid));
+        historyManager.add(subtask);
+        return subtask;
     }
 
     @Override
@@ -81,7 +82,7 @@ public class InMemoryTaskManager implements TaskManager {
             Epic epic = new Epic(epics.get(epicId));
             return new ArrayList<>(epic.getSubtasks());
         } else {
-            return new ArrayList<>();
+            throw new NotFoundException("Эпик id = " + epicId + " не найден");
         }
     }
 
@@ -297,6 +298,12 @@ public class InMemoryTaskManager implements TaskManager {
             return true;
         }
         if (task1.getStartTime().isAfter(task2.getStartTime()) && task1.getStartTime().isBefore(task2.getEndTime())) {
+            return true;
+        }
+        if (task2.getStartTime().isAfter(task1.getStartTime()) && task2.getStartTime().isBefore(task1.getEndTime())) {
+            return true;
+        }
+        if (task2.getEndTime().isAfter(task1.getStartTime()) && task2.getEndTime().isBefore(task1.getEndTime())) {
             return true;
         }
         return task1.getEndTime().isAfter(task2.getStartTime()) && task1.getEndTime().isBefore(task2.getEndTime());

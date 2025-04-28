@@ -1,5 +1,6 @@
-package server;
+package handler;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,6 +11,7 @@ import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.HttpTaskServer;
 import task.Epic;
 import task.Status;
 import task.Subtask;
@@ -27,11 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static server.BaseHttpHandler.createGson;
+import static handler.BaseHttpHandler.createGson;
 
 public class SubtasksHandlerTest {
     TaskManager taskManager = Managers.getDefault();
     HttpTaskServer server = new HttpTaskServer(taskManager);
+    Gson gson = createGson();
+
 
     @BeforeEach
     public void beforeEach() throws IOException {
@@ -53,7 +57,7 @@ public class SubtasksHandlerTest {
 
         Subtask subtask1 = new Subtask("Subtask1", "Subtask1 for Epic1", savedEpic1, Duration.ofMinutes(60),
                 LocalDateTime.of(2025, 3, 10, 16, 0));
-        String subtask1Json = createGson().toJson(subtask1);
+        String subtask1Json = gson.toJson(subtask1);
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/subtasks");
@@ -73,13 +77,21 @@ public class SubtasksHandlerTest {
         // добавление с пересечением
         Subtask subtask2 = new Subtask("Subtask2", "Subtask2 for Epic1", savedEpic1, Duration.ofMinutes(160),
                 LocalDateTime.of(2025, 3, 10, 15, 0));
-        String subtask2Json = createGson().toJson(subtask2);
+        String subtask2Json = gson.toJson(subtask2);
 
         request = HttpRequest.newBuilder().uri(url)
                 .POST(HttpRequest.BodyPublishers.ofString(subtask2Json))
                 .build();
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(406, response.statusCode());
+
+        // пустое тело запроса
+        request = HttpRequest.newBuilder().uri(url)
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(400, response.statusCode());
     }
 
     @Test
@@ -116,7 +128,7 @@ public class SubtasksHandlerTest {
         assertEquals(3, jsonArray.size());
 
         for (int i = 0; i < jsonArray.size(); i++) {
-            Subtask subtask = createGson().fromJson(jsonArray.get(i), Subtask.class);
+            Subtask subtask = gson.fromJson(jsonArray.get(i), Subtask.class);
             int id = subtask.getUid();
             Subtask oldSubtask = subtasksFromManager.get(i);
             assertEquals(oldSubtask, subtask);
@@ -144,7 +156,7 @@ public class SubtasksHandlerTest {
 
         Subtask subtask = new Subtask(subtask2Id, "Subtask2222", "Subtask222 for Epic1", Status.NEW,
                 epic1Id, Duration.ofMinutes(10), LocalDateTime.of(2025, 3, 10, 18, 0));
-        String subtaskJson = createGson().toJson(subtask);
+        String subtaskJson = gson.toJson(subtask);
 
         assertNotEquals(taskManager.getSubtaskById(subtask2Id), subtask);
 
@@ -161,7 +173,7 @@ public class SubtasksHandlerTest {
         // добавление с пересечением
         subtask = new Subtask(subtask2Id, "Subtask2222", "Subtask222 for Epic1", Status.NEW,
                 epic1Id, Duration.ofMinutes(100), LocalDateTime.of(2025, 3, 10, 16, 0));
-        subtaskJson = createGson().toJson(subtask);
+        subtaskJson = gson.toJson(subtask);
 
         assertNotEquals(taskManager.getSubtaskById(subtask2Id), subtask);
 
@@ -171,7 +183,13 @@ public class SubtasksHandlerTest {
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
         assertEquals(406, response.statusCode());
 
+        // пустое тело запроса
+        request = HttpRequest.newBuilder().uri(url)
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
+        assertEquals(400, response.statusCode());
     }
 
 
@@ -206,7 +224,7 @@ public class SubtasksHandlerTest {
 
         JsonElement jsonElement = JsonParser.parseString(response.body());
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        Subtask subtask = createGson().fromJson(jsonObject, Subtask.class);
+        Subtask subtask = gson.fromJson(jsonObject, Subtask.class);
         assertEquals(subtask2, subtask);
 
         // по несуществующему id

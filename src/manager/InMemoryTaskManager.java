@@ -1,5 +1,6 @@
 package manager;
 
+import exception.EmptyTaskException;
 import exception.NotFoundException;
 import exception.SaveTaskException;
 import task.Epic;
@@ -88,7 +89,8 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createTask(Task task) {
-        if (task != null && canAddTaskWithoutIntersect(task)) {
+        if (task == null) throw new EmptyTaskException("Подана пустая задача");
+        if (canAddTaskWithoutIntersect(task)) {
             int uid = getUidCounter();
             task.setUid(uid);
             tasks.put(uid, task);
@@ -100,31 +102,28 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public int createEpic(Epic epic) {
-        if (epic != null) {
-            int uid = getUidCounter();
-            epic.setUid(uid);
-            epics.put(uid, epic);
-            return uid;
-        }
-        return 0;
+        if (epic == null) throw new EmptyTaskException("Подан пустой эпик");
+        int uid = getUidCounter();
+        epic.setUid(uid);
+        epics.put(uid, epic);
+        return uid;
     }
 
     @Override
     public int createSubtask(Subtask subtask) {
-        if (subtask != null) {
-            int epicUid = subtask.getEpicUid();
-            Epic epic = epics.get(epicUid);
-            if (epic != null) {
-                if (canAddTaskWithoutIntersect(subtask)) {
-                    int uid = getUidCounter();
-                    subtask.setUid(uid);
-                    subtasks.put(uid, subtask);
-                    epic.getSubtasks().add(subtask);
-                    epic.changeStatusDependingOnSubtasks();
-                    epic.calculateStartTimeDurationEndTime();
-                    putToPrioritizedTasks(subtask, null);
-                    return uid;
-                }
+        if (subtask == null) throw new EmptyTaskException("Подана пустая подзадача");
+        int epicUid = subtask.getEpicUid();
+        Epic epic = epics.get(epicUid);
+        if (epic != null) {
+            if (canAddTaskWithoutIntersect(subtask)) {
+                int uid = getUidCounter();
+                subtask.setUid(uid);
+                subtasks.put(uid, subtask);
+                epic.getSubtasks().add(subtask);
+                epic.changeStatusDependingOnSubtasks();
+                epic.calculateStartTimeDurationEndTime();
+                putToPrioritizedTasks(subtask, null);
+                return uid;
             }
         }
         return 0;
@@ -132,6 +131,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateTask(Task task) {
+        if (task == null) throw new EmptyTaskException("Подана пустая задача");
         if (tasks.containsKey(task.getUid())) {
             Task oldTask = tasks.get(task.getUid());
             if (canAddTaskWithoutIntersect(task)) {
@@ -143,6 +143,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateEpic(Epic epic) {
+        if (epic == null) throw new EmptyTaskException("Подан пустой эпик");
         int epicId = epic.getUid();
         if (epics.containsKey(epicId)) {
             Epic epic1 = epics.get(epicId);
@@ -153,6 +154,7 @@ public class InMemoryTaskManager implements TaskManager {
 
     @Override
     public void updateSubtask(Subtask subtask) {
+        if (subtask == null) throw new EmptyTaskException("Подана пустая подзадача");
         int subtaskId = subtask.getUid();
         if (subtasks.containsKey(subtaskId)) {
             Subtask oldSubtask = subtasks.get(subtaskId);

@@ -1,6 +1,11 @@
 package server;
 
 import com.sun.net.httpserver.HttpServer;
+import handler.EpicsHandler;
+import handler.HistoryHandler;
+import handler.PrioritizedHandler;
+import handler.SubtasksHandler;
+import handler.TasksHandler;
 import manager.Managers;
 import manager.TaskManager;
 

@@ -1,9 +1,12 @@
-package server;
+package handler;
 
+import adapter.DurationAdapter;
+import adapter.LocalDateTimeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
+import manager.TaskManager;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -15,10 +18,18 @@ public abstract class BaseHttpHandler implements HttpHandler {
 
     public static final int OK = 200;
     public static final int CREATED = 201;
+    public static final int BAD_REQUEST = 400;
     public static final int NOT_FOUND = 404;
     public static final int NOT_ACCEPTABLE = 406;
-
     public static final int SERVER_ERROR = 500;
+
+    public final TaskManager taskManager;
+
+    public final Gson gson = createGson();
+
+    public BaseHttpHandler(TaskManager taskManager) {
+        this.taskManager = taskManager;
+    }
 
     protected void sendText(HttpExchange exchange, String text, int code) throws IOException {
         byte[] response = text.getBytes(StandardCharsets.UTF_8);

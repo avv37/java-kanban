@@ -1,5 +1,6 @@
-package server;
+package handler;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,6 +11,7 @@ import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.HttpTaskServer;
 import task.Epic;
 import task.Subtask;
 
@@ -26,11 +28,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static server.BaseHttpHandler.createGson;
+import static handler.BaseHttpHandler.createGson;
 
 public class EpicsHandlerTest {
     TaskManager taskManager = Managers.getDefault();
     HttpTaskServer server = new HttpTaskServer(taskManager);
+
+    Gson gson = createGson();
 
     @BeforeEach
     public void beforeEach() throws IOException {
@@ -47,7 +51,7 @@ public class EpicsHandlerTest {
     @Test
     public void testAddEpic() throws IOException, InterruptedException {
         Epic epic1 = new Epic("Epic1", "First epic description");
-        String epic1Json = createGson().toJson(epic1);
+        String epic1Json = gson.toJson(epic1);
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics");
@@ -63,6 +67,14 @@ public class EpicsHandlerTest {
         assertNotNull(tasksFromManager, "Эпики не возвращаются");
         assertEquals(1, tasksFromManager.size(), "Некорректное количество эпиков");
         assertEquals("Epic1", tasksFromManager.get(0).getName(), "Некорректное имя эпика");
+
+        // пустое тело запроса
+        request = HttpRequest.newBuilder().uri(url)
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(400, response.statusCode());
     }
 
     @Test
@@ -101,14 +113,14 @@ public class EpicsHandlerTest {
         List<Epic> tasksFromManager = taskManager.getEpics();
         for (int i = 0; i < jsonArrayEpics.size(); i++) {
             JsonObject jsonObjectEpic = jsonArrayEpics.get(i).getAsJsonObject();
-            Epic epic = createGson().fromJson(jsonObjectEpic, Epic.class);
+            Epic epic = gson.fromJson(jsonObjectEpic, Epic.class);
             Epic oldEpic = tasksFromManager.get(i);
 
             assertEquals(oldEpic, epic);
 
             JsonArray jsonArraySubtasks = jsonObjectEpic.get("subtasks").getAsJsonArray();
             for (int j = 0; j < jsonArraySubtasks.size(); j++) {
-                Subtask subtask = createGson().fromJson(jsonArraySubtasks.get(j), Subtask.class);
+                Subtask subtask = gson.fromJson(jsonArraySubtasks.get(j), Subtask.class);
                 Subtask oldSubtask = oldEpic.getSubtasks().get(j);
 
                 assertEquals(oldSubtask, subtask);
@@ -146,13 +158,13 @@ public class EpicsHandlerTest {
 
         JsonElement jsonElement = JsonParser.parseString(response.body());
         JsonObject jsonObjectEpic = jsonElement.getAsJsonObject();
-        Epic epic = createGson().fromJson(jsonObjectEpic, Epic.class);
+        Epic epic = gson.fromJson(jsonObjectEpic, Epic.class);
 
         assertEquals(epic2, epic);
 
         JsonArray jsonArraySubtasks = jsonObjectEpic.get("subtasks").getAsJsonArray();
         for (int j = 0; j < jsonArraySubtasks.size(); j++) {
-            Subtask subtask = createGson().fromJson(jsonArraySubtasks.get(j), Subtask.class);
+            Subtask subtask = gson.fromJson(jsonArraySubtasks.get(j), Subtask.class);
             Subtask oldSubtask = epic2.getSubtasks().get(j);
 
             assertEquals(oldSubtask, subtask);
@@ -188,7 +200,7 @@ public class EpicsHandlerTest {
         assertNotEquals(savedEpic2.getDescription(), taskManager.getEpicById(epic2Id).getDescription());
 
 
-        String epicJson = createGson().toJson(savedEpic2);
+        String epicJson = gson.toJson(savedEpic2);
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/epics/" + epic2Id);
@@ -201,6 +213,13 @@ public class EpicsHandlerTest {
         assertEquals("Epic2New", taskManager.getEpicById(epic2Id).getName());
         assertEquals("Description New", taskManager.getEpicById(epic2Id).getDescription());
 
+        // пустое тело запроса
+        request = HttpRequest.newBuilder().uri(url)
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(400, response.statusCode());
     }
 
     @Test
@@ -266,7 +285,7 @@ public class EpicsHandlerTest {
         JsonElement jsonElement = JsonParser.parseString(response.body());
         JsonArray jsonArraySubtasks = jsonElement.getAsJsonArray();
         for (int j = 0; j < jsonArraySubtasks.size(); j++) {
-            Subtask subtask = createGson().fromJson(jsonArraySubtasks.get(j), Subtask.class);
+            Subtask subtask = gson.fromJson(jsonArraySubtasks.get(j), Subtask.class);
             Subtask oldSubtask = epic1.getSubtasks().get(j);
 
             assertEquals(oldSubtask, subtask);

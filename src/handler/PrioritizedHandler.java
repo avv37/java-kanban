@@ -1,4 +1,4 @@
-package server;
+package handler;
 
 import com.sun.net.httpserver.HttpExchange;
 import manager.TaskManager;
@@ -8,18 +8,15 @@ import java.io.IOException;
 import java.util.List;
 
 public class PrioritizedHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
 
     public PrioritizedHandler(TaskManager taskManager) {
-        super();
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
     public void handle(HttpExchange exchange) throws IOException {
         String requestMethod = exchange.getRequestMethod();
         String path = exchange.getRequestURI().getPath();
-        String[] pathParts = path.split("/");
         Endpoint endpoint = getEndpoint(path, requestMethod);
         switch (endpoint) {
             case GET_PRIORITIZED -> {
@@ -27,8 +24,11 @@ public class PrioritizedHandler extends BaseHttpHandler {
                 if (taskPrioritized.isEmpty()) {
                     sendText(exchange, "Упорядоченный список пуст", OK);
                 } else {
-                    sendText(exchange, createGson().toJson(taskPrioritized), OK);
+                    sendText(exchange, gson.toJson(taskPrioritized), OK);
                 }
+            }
+            case UNKNOWN -> {
+                sendText(exchange, "Такого Endpoint нет", NOT_FOUND);
             }
         }
     }

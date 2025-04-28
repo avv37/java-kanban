@@ -1,7 +1,7 @@
-package server;
+package handler;
 
 import com.sun.net.httpserver.HttpExchange;
-import exception.ManagerSaveException;
+import exception.EmptyTaskException;
 import exception.NotFoundException;
 import exception.SaveTaskException;
 import manager.TaskManager;
@@ -12,11 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class TasksHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
-
     public TasksHandler(TaskManager taskManager) {
-        super();
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
@@ -33,44 +30,49 @@ public class TasksHandler extends BaseHttpHandler {
                     if (tasks.isEmpty()) {
                         sendText(exchange, "Список задач пуст", OK);
                     } else {
-                        sendText(exchange, createGson().toJson(tasks), OK);
+                        sendText(exchange, gson.toJson(tasks), OK);
                     }
                 }
                 case CREATE_TASK -> {
                     try {
-                        Task task = createGson().fromJson(body, Task.class);
+                        Task task = gson.fromJson(body, Task.class);
                         int id = taskManager.createTask(task);
                         sendText(exchange, "Создана задача id = " + id, CREATED);
                     } catch (SaveTaskException e) {
                         sendText(exchange, e.getMessage(), NOT_ACCEPTABLE);
+                    } catch (EmptyTaskException e) {
+                        sendText(exchange, e.getMessage(), BAD_REQUEST);
                     }
                 }
                 case GET_TASK -> {
                     try {
                         Task task = taskManager.getTaskById(Integer.parseInt(pathParts[2]));
-                        sendText(exchange, createGson().toJson(task), OK);
+                        sendText(exchange, gson.toJson(task), OK);
                     } catch (NotFoundException e) {
                         sendText(exchange, e.getMessage(), NOT_FOUND);
                     }
                 }
                 case UPDATE_TASK -> {
                     try {
-                        Task task = createGson().fromJson(body, Task.class);
+                        Task task = gson.fromJson(body, Task.class);
                         taskManager.updateTask(task);
                         sendCode(exchange, CREATED);
                     } catch (SaveTaskException e) {
                         sendText(exchange, e.getMessage(), NOT_ACCEPTABLE);
+                    } catch (EmptyTaskException e) {
+                        sendText(exchange, e.getMessage(), BAD_REQUEST);
                     }
                 }
                 case DELETE_TASK -> {
                     taskManager.deleteTaskById(Integer.parseInt(pathParts[2]));
                     sendText(exchange, "Задача удалена", OK);
                 }
+                case UNKNOWN -> {
+                    sendText(exchange, "Такого Endpoint нет", NOT_FOUND);
+                }
             }
-        } catch (ManagerSaveException e) {
+        } catch (Exception e) {
             sendText(exchange, e.getMessage(), SERVER_ERROR);
-        } catch (Throwable e) {
-            System.out.println(e.getMessage());
         }
     }
 }

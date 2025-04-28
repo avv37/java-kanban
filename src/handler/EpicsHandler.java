@@ -1,7 +1,7 @@
-package server;
+package handler;
 
 import com.sun.net.httpserver.HttpExchange;
-import exception.ManagerSaveException;
+import exception.EmptyTaskException;
 import exception.NotFoundException;
 import exception.SaveTaskException;
 import manager.TaskManager;
@@ -13,11 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class EpicsHandler extends BaseHttpHandler {
-    private final TaskManager taskManager;
 
     public EpicsHandler(TaskManager taskManager) {
-        super();
-        this.taskManager = taskManager;
+        super(taskManager);
     }
 
     @Override
@@ -34,33 +32,37 @@ public class EpicsHandler extends BaseHttpHandler {
                     if (epics.isEmpty()) {
                         sendText(exchange, "Список эпиков пуст", OK);
                     } else {
-                        sendText(exchange, createGson().toJson(epics), OK);
+                        sendText(exchange, gson.toJson(epics), OK);
                     }
                 }
                 case CREATE_EPIC -> {
                     try {
-                        Epic epic = createGson().fromJson(body, Epic.class);
+                        Epic epic = gson.fromJson(body, Epic.class);
                         int id = taskManager.createEpic(epic);
                         sendText(exchange, "Создан эпик id = " + id, CREATED);
                     } catch (SaveTaskException e) {
                         sendText(exchange, e.getMessage(), NOT_ACCEPTABLE);
+                    } catch (EmptyTaskException e) {
+                        sendText(exchange, e.getMessage(), BAD_REQUEST);
                     }
                 }
                 case GET_EPIC -> {
                     try {
                         Epic epic = taskManager.getEpicById(Integer.parseInt(pathParts[2]));
-                        sendText(exchange, createGson().toJson(epic), OK);
+                        sendText(exchange, gson.toJson(epic), OK);
                     } catch (NotFoundException e) {
                         sendText(exchange, e.getMessage(), NOT_FOUND);
                     }
                 }
                 case UPDATE_EPIC -> {
                     try {
-                        Epic epic = createGson().fromJson(body, Epic.class);
+                        Epic epic = gson.fromJson(body, Epic.class);
                         taskManager.updateEpic(epic);
                         sendCode(exchange, CREATED);
                     } catch (SaveTaskException e) {
                         sendText(exchange, e.getMessage(), NOT_ACCEPTABLE);
+                    } catch (EmptyTaskException e) {
+                        sendText(exchange, e.getMessage(), BAD_REQUEST);
                     }
                 }
                 case DELETE_EPIC -> {
@@ -70,16 +72,17 @@ public class EpicsHandler extends BaseHttpHandler {
                 case GET_EPIC_SUBTASKS -> {
                     try {
                         List<Subtask> subtasks = taskManager.getSubtasksByEpicId(Integer.parseInt(pathParts[2]));
-                        sendText(exchange, createGson().toJson(subtasks), OK);
+                        sendText(exchange, gson.toJson(subtasks), OK);
                     } catch (NotFoundException e) {
                         sendText(exchange, e.getMessage(), NOT_FOUND);
                     }
                 }
+                case UNKNOWN -> {
+                    sendText(exchange, "Такого Endpoint нет", NOT_FOUND);
+                }
             }
-        } catch (ManagerSaveException e) {
+        } catch (Exception e) {
             sendText(exchange, e.getMessage(), SERVER_ERROR);
-        } catch (Throwable e) {
-            System.out.println(e.getMessage());
         }
     }
 }

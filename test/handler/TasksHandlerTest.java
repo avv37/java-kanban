@@ -1,5 +1,6 @@
-package server;
+package handler;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -10,6 +11,7 @@ import manager.TaskManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.HttpTaskServer;
 import task.Status;
 import task.Task;
 
@@ -22,15 +24,16 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static handler.BaseHttpHandler.createGson;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static server.BaseHttpHandler.createGson;
 
 public class TasksHandlerTest {
     TaskManager taskManager = Managers.getDefault();
     HttpTaskServer server = new HttpTaskServer(taskManager);
+    Gson gson = createGson();
 
     @BeforeEach
     public void beforeEach() throws IOException {
@@ -48,7 +51,7 @@ public class TasksHandlerTest {
     public void testAddTask() throws IOException, InterruptedException {
         Task task1 = new Task("Task1", "First task description", Duration.ofMinutes(60),
                 LocalDateTime.of(2025, 3, 10, 14, 0));
-        String task1Json = createGson().toJson(task1);
+        String task1Json = gson.toJson(task1);
 
         HttpClient client = HttpClient.newHttpClient();
         URI url = URI.create("http://localhost:8080/tasks");
@@ -69,7 +72,7 @@ public class TasksHandlerTest {
         // добавление с пересечением
         Task task2 = new Task("Task2", "Second task description", Duration.ofMinutes(60),
                 LocalDateTime.of(2025, 3, 10, 13, 30));
-        String task2Json = createGson().toJson(task2);
+        String task2Json = gson.toJson(task2);
         request = HttpRequest.newBuilder().uri(url)
                 .POST(HttpRequest.BodyPublishers.ofString(task2Json))
                 .build();
@@ -77,6 +80,14 @@ public class TasksHandlerTest {
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(406, response.statusCode());
+
+        // пустое тело запроса
+        request = HttpRequest.newBuilder().uri(url)
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(400, response.statusCode());
     }
 
     @Test
@@ -107,7 +118,7 @@ public class TasksHandlerTest {
         assertEquals(3, jsonArray.size());
 
         for (int i = 0; i < jsonArray.size(); i++) {
-            Task task = createGson().fromJson(jsonArray.get(i), Task.class);
+            Task task = gson.fromJson(jsonArray.get(i), Task.class);
             int id = task.getUid();
             Task oldTask = tasksFromManager.get(i);
             assertEquals(oldTask, task);
@@ -139,7 +150,7 @@ public class TasksHandlerTest {
 
         JsonElement jsonElement = JsonParser.parseString(response.body());
         JsonObject jsonObject = jsonElement.getAsJsonObject();
-        Task task = createGson().fromJson(jsonObject, Task.class);
+        Task task = gson.fromJson(jsonObject, Task.class);
         assertEquals(task3, task);
 
         // по несуществующему id
@@ -165,7 +176,7 @@ public class TasksHandlerTest {
 
         Task task = new Task(task2id, "Task222", "Second task description222", Status.NEW, Duration.ofMinutes(10),
                 LocalDateTime.of(2025, 3, 10, 12, 0));
-        String taskJson = createGson().toJson(task);
+        String taskJson = gson.toJson(task);
 
         assertNotEquals(taskManager.getTaskById(task2id), task);
 
@@ -183,7 +194,7 @@ public class TasksHandlerTest {
         // с пересечением
         task = new Task(task2id, "Task222", "Second task description222", Status.NEW, Duration.ofMinutes(130),
                 LocalDateTime.of(2025, 3, 10, 12, 0));
-        taskJson = createGson().toJson(task);
+        taskJson = gson.toJson(task);
 
         assertNotEquals(taskManager.getTaskById(task2id), task);
 
@@ -193,6 +204,15 @@ public class TasksHandlerTest {
         response = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         assertEquals(406, response.statusCode());
+
+
+        // пустое тело запроса
+        request = HttpRequest.newBuilder().uri(url)
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .build();
+        response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(400, response.statusCode());
     }
 
     @Test

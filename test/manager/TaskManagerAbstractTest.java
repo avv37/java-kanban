@@ -1,5 +1,6 @@
 package manager;
 
+import exception.NotFoundException;
 import exception.SaveTaskException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,7 +14,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -208,8 +208,7 @@ public abstract class TaskManagerAbstractTest<T extends TaskManager> {
         taskManager.deleteEpicById(epic1Id);
 
         assertEquals(0, taskManager.getEpics().size());
-        assertNull(taskManager.getEpicById(epic1Id));
-
+        assertThrows(NotFoundException.class, () -> taskManager.getEpicById(epic1Id));
 
         // удалились из истории
         history = taskManager.getHistory().stream()
@@ -260,7 +259,7 @@ public abstract class TaskManagerAbstractTest<T extends TaskManager> {
         taskManager.deleteAllEpics();
 
         assertEquals(0, taskManager.getEpics().size());
-        assertNull(taskManager.getEpicById(epic1Id));
+        assertThrows(NotFoundException.class, () -> taskManager.getEpicById(epic1Id));
 
 
         // удалились из истории

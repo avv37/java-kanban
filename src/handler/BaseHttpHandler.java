@@ -23,9 +23,9 @@ public abstract class BaseHttpHandler implements HttpHandler {
     public static final int NOT_ACCEPTABLE = 406;
     public static final int SERVER_ERROR = 500;
 
-    public final TaskManager taskManager;
+    protected final TaskManager taskManager;
 
-    public final Gson gson = createGson();
+    protected final Gson gson = createGson();
 
     public BaseHttpHandler(TaskManager taskManager) {
         this.taskManager = taskManager;
